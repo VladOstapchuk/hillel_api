@@ -2,6 +2,7 @@
 	"info": {
 		"_postman_id": "2424b6e0-4da8-4d16-9b78-4891b292ddb2",
 		"name": "Hillel_QA_Tech_Pro",
+		"description": "Навчальна колеція запитів - Hillel IT School - курс QA Technical Pro",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "41630809"
 	},
@@ -249,7 +250,7 @@
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.status).to.eql(\"error\");\r",
 									"});\r",
-									"\r",
+									"var jsonObject = xml2Json(responseBody);\r",
 									"pm.test(\"Your test name\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.message).to.eql(\"Name is required\");\r",
@@ -299,6 +300,14 @@
 							"pm.collectionVariables.set(\"UserEmail\", pm.variables.replaceIn(\"{{$randomEmail}}\"));\r",
 							"pm.collectionVariables.set(\"UserPassword\", pm.variables.replaceIn(\"{{$randomPassword}}\"));\r",
 							"\r",
+							"const emailPattern = /\\b[a-zA-Z_\\.\\d]+@[a-zA-Z]+\\.[a-zA-Z]{2,4}\\b/g;\r",
+							"\r",
+							"pm.test(\"Email have true format\", function () {\r",
+							"    let email = pm.collectionVariables.get(\"UserEmail\")\r",
+							"    pm.expect(email).to.be.a(\"string\");\r",
+							"    pm.expect(email).match(emailPattern);\r",
+							"});\r",
+							"\r",
 							"\r",
 							"\r",
 							"\r",
@@ -312,6 +321,54 @@
 					"listen": "test",
 					"script": {
 						"exec": [
+							"if (pm.response.code !== 201) {\r",
+							"    throw new Error(\"Status Code Failed = \" + pm.response.code)\r",
+							"}\r",
+							"\r",
+							"const expectSchema = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"status\": {\r",
+							"            \"type\": \"string\"\r",
+							"        },\r",
+							"        \"data\": {\r",
+							"            \"type\": \"object\",\r",
+							"            \"properties\": {\r",
+							"                \"userId\": {\r",
+							"                    \"type\": \"integer\"\r",
+							"                },\r",
+							"                \"photoFilename\": {\r",
+							"                    \"type\": \"string\"\r",
+							"                },\r",
+							"                \"distanceUnits\": {\r",
+							"                    \"type\": \"string\"\r",
+							"                },\r",
+							"                \"currency\": {\r",
+							"                    \"type\": \"string\"\r",
+							"                }\r",
+							"            },\r",
+							"            \"required\": [\r",
+							"                \"userId\",\r",
+							"                \"photoFilename\",\r",
+							"                \"distanceUnits\",\r",
+							"                \"currency\"\r",
+							"            ]\r",
+							"        }\r",
+							"    },\r",
+							"    \"required\": [\r",
+							"        \"status\",\r",
+							"        \"data\"\r",
+							"    ]\r",
+							"}\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"JSON data Valid to Schema\", function () {\r",
+							"    pm.expect(jsonData).to.have.jsonSchema(expectSchema);\r",
+							"    pm.response.to.have.jsonSchema(expectSchema);\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.set(\"UserID\", jsonData.data.userId);\r",
+							"\r",
 							"\r",
 							""
 						],
@@ -347,6 +404,27 @@
 		},
 		{
 			"name": "LogOut",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code !== 200) {\r",
+							"    return new Error(\"Logout is failed \" + pm.response.code);\r",
+							"}\r",
+							"\r",
+							"let jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Перевірка статусу відповіді\", function () {\r",
+							"    console.log(\"Отриманий статус:\", jsonData.status);\r",
+							"    pm.expect(jsonData.status).to.eql(\"ok\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -370,6 +448,30 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code !== 200) {\r",
+							"    throw new Error(\"Status Code Failed = \" + pm.response.code)\r",
+							"}\r",
+							"let jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Перевірка статусу відповіді\", function () {\r",
+							"    console.log(\"Отриманий статус:\", jsonData.status);\r",
+							"    pm.expect(jsonData.status).to.eql(\"ok\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Перевірка у відповіді User ID \", function () {\r",
+							"    pm.expect(jsonData.data.userId).to.eql(pm.collectionVariables.get(\"UserID\"));\r",
+							"});\r",
+							"\r",
 							""
 						],
 						"type": "text/javascript",
@@ -404,6 +506,36 @@
 		},
 		{
 			"name": "EditUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code !== 200) {\r",
+							"    throw new Error(\"Status Code Failed = \" + pm.response.code)\r",
+							"}\r",
+							"else{\r",
+							"let responseData = pm.response.json();\r",
+							"let requestData = pm.request.body ? JSON.parse(pm.request.body.raw) : {};\r",
+							"let moment = require('moment');\r",
+							"let formattedResponseDate = moment(responseData.data.dateBirth).format(\"YYYY-MM-D\");\r",
+							"let RegExDate = /^\\d{4}-\\d{2}-\\d{1,2}$/;\r",
+							"\r",
+							"pm.test(\"Відповідь ідентична запиту\", function () {\r",
+							"    pm.expect(requestData.name).to.deep.equal(responseData.data.name);\r",
+							"    pm.expect(requestData.lastName).to.deep.equal(responseData.data.lastName);\r",
+							"    pm.expect(requestData.country).to.deep.equal(responseData.data.country);\r",
+							"    pm.expect(formattedResponseDate).to.match(RegExDate);\r",
+							"});\r",
+							"}\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [],
@@ -438,6 +570,34 @@
 		},
 		{
 			"name": "GetUserInfo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code !== 200) {\r",
+							"    throw new Error(\"Status Code Failed = \" + pm.response.code)\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Валідація відповіді на тип даних\", function () {\r",
+							"    let responseData = pm.response.json();\r",
+							"    pm.expect(responseData).to.be.an('object');\r",
+							"    pm.expect(responseData.status).to.be.a('string');\r",
+							"    pm.expect(responseData.data).to.be.an('object');\r",
+							"    pm.expect(responseData.data.userId).to.be.a('number');\r",
+							"    pm.expect(responseData.data.photoFilename).to.be.a('string');\r",
+							"    pm.expect(responseData.data.name).to.be.a('string');\r",
+							"    pm.expect(responseData.data.lastName).to.be.a('string');\r",
+							"    pm.expect(responseData.data.dateBirth).to.be.a('string');\r",
+							"    pm.expect(responseData.data.country).to.be.a('string');\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -462,6 +622,21 @@
 					"script": {
 						"exec": [
 							"pm.collectionVariables.set(\"NewUserPassword\", pm.variables.replaceIn(\"{{$randomPassword}}\"));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Retun valid User ID \", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    //console.log(pm.collectionVariables.get(\"UserID\"));\r",
+							"    //console.log(jsonData.data.userId);\r",
+							"    pm.expect(jsonData.data.userId).to.eql(pm.collectionVariables.get(\"UserID\"));\r",
+							"});"
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -765,7 +940,8 @@
 						"exec": [
 							"let NewMillage = parseInt(pm.collectionVariables.get(\"ActualMileage\"), 10) + 150;\r",
 							"//console.log(Millage);\r",
-							"pm.collectionVariables.set(\"NewMileage\", pm.variables.replaceIn(NewMillage));"
+							"pm.collectionVariables.set(\"NewMileage\", pm.variables.replaceIn(NewMillage));\r",
+							""
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -849,6 +1025,14 @@
 		},
 		{
 			"key": "ActualMileage",
+			"value": ""
+		},
+		{
+			"key": "Responce",
+			"value": ""
+		},
+		{
+			"key": "UserID",
 			"value": ""
 		}
 	]
