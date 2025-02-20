@@ -1,0 +1,244 @@
+{
+	"info": {
+		"_postman_id": "66317f77-fc8c-421a-a59e-ee67e8b4595a",
+		"name": "ISBN HW-  SOAP APIs",
+		"description": "This is a collection of different SOAP APIs that are completley public and do not require any authentication, making it easier for consumers to play with and understand what APIs are all about by seeing the many different ways in which APIs can be used.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41630809"
+	},
+	"item": [
+		{
+			"name": "Is Valid ISBN13 Number",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							" const xml2js = require('xml2js'); \r",
+							"  var jsonData;\r",
+							" xml2js.parseString(pm.response.text(), function (err, result) {\r",
+							"        jsonData = result;\r",
+							"    });\r",
+							"\r",
+							"pm.test(\"Validate jsonData structure\", function () {\r",
+							"    pm.expect(jsonData).to.have.property(\"soap:Envelope\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response body is not empty\", function () {\r",
+							"    pm.expect(pm.response.text()).not.eql(\"\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body is a string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.be.a('string');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body contains the expected value\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"IsValidISBN13Result\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body has expected content type\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/xml; charset=utf-8\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response header 'Cache-Control' is present\", function () {\r",
+							"    pm.response.to.have.header(\"Cache-Control\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response header 'Content-Type' is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response header 'Content-Encoding' is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Encoding\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response header 'Vary' is present\", function () {\r",
+							"    pm.response.to.have.header(\"Vary\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response header 'Server' is present\", function () {\r",
+							"    pm.response.to.have.header(\"Server\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/xml; charset=utf-8",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <IsValidISBN13 xmlns=\"http://webservices.daehosting.com/ISBN\">\n      <sISBN>978-1-4612-9090-2</sISBN>\n    </IsValidISBN13>\n  </soap:Body>\n</soap:Envelope>"
+				},
+				"url": {
+					"raw": "http://webservices.daehosting.com/services/isbnservice.wso",
+					"protocol": "http",
+					"host": [
+						"webservices",
+						"daehosting",
+						"com"
+					],
+					"path": [
+						"services",
+						"isbnservice.wso"
+					]
+				},
+				"description": "The test is done by calculation on the first 12 digits and compare the result with the checksum number at the end. You have to pass a 13 digits number."
+			},
+			"response": []
+		},
+		{
+			"name": "Is Valid ISBN10 Number",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body matches the expected value\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"<m:IsValidISBN10Result>true</m:IsValidISBN10Result>\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response body is present\", function () {\r",
+							"    pm.expect(pm.response.text()).to.not.be.empty;\r",
+							"});\r",
+							"\r",
+							"// Test 3: Verify the content type of the response\r",
+							"pm.test(\"Content-Type is present and has a specific value\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/xml; charset=utf-8\");\r",
+							"});\r",
+							"\r",
+							"// Test 4: Verify the presence of Cache-Control header\r",
+							"pm.test(\"Cache-Control header is present\", function () {\r",
+							"    pm.response.to.have.header(\"Cache-Control\");\r",
+							"});\r",
+							"\r",
+							"// Test 5: Verify the presence of Content-Encoding header\r",
+							"pm.test(\"Content-Encoding header is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Encoding\");\r",
+							"});\r",
+							"\r",
+							"// Test 6: Verify the presence of Strict-Transport-Security header\r",
+							"pm.test(\"Strict-Transport-Security header is present\", function () {\r",
+							"    pm.response.to.have.header(\"Strict-Transport-Security\");\r",
+							"});\r",
+							"\r",
+							"// Test 7: Verify the presence of Vary header\r",
+							"pm.test(\"Vary header is present\", function () {\r",
+							"    pm.response.to.have.header(\"Vary\");\r",
+							"});\r",
+							"\r",
+							"// Test 8: Verify the presence of Server header\r",
+							"pm.test(\"Server header is present\", function () {\r",
+							"    pm.response.to.have.header(\"Server\");\r",
+							"});\r",
+							"\r",
+							"// Test 9: Verify the presence of Web-Service header\r",
+							"pm.test(\"Web-Service header is present\", function () {\r",
+							"    pm.response.to.have.header(\"Web-Service\");\r",
+							"});\r",
+							"\r",
+							"// Test 10: Verify the presence of Permissions-Policy header\r",
+							"pm.test(\"Permissions-Policy header is present\", function () {\r",
+							"    pm.response.to.have.header(\"Permissions-Policy\");\r",
+							"});\r",
+							"\r",
+							"// Test 11: Verify the presence of Referrer-Policy header\r",
+							"pm.test(\"Referrer-Policy header is present\", function () {\r",
+							"    pm.response.to.have.header(\"Referrer-Policy\");\r",
+							"});\r",
+							"\r",
+							"// Test 12: Verify the presence of Date header\r",
+							"pm.test(\"Date header is present\", function () {\r",
+							"    pm.response.to.have.header(\"Date\");\r",
+							"});\r",
+							"\r",
+							"// Test 13: Verify the presence of Content-Length header\r",
+							"pm.test(\"Content-Length header is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Length\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body is a string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.be.a('string');\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/xml; charset=utf-8",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <IsValidISBN10 xmlns=\"http://webservices.daehosting.com/ISBN\">\n      <sISBN>0-19-852663-6</sISBN>\n    </IsValidISBN10>\n  </soap:Body>\n</soap:Envelope>"
+				},
+				"url": {
+					"raw": "http://webservices.daehosting.com/services/isbnservice.wso",
+					"protocol": "http",
+					"host": [
+						"webservices",
+						"daehosting",
+						"com"
+					],
+					"path": [
+						"services",
+						"isbnservice.wso"
+					]
+				},
+				"description": "The test is done by calculation on the first 9 digits and compare the result with the checksum number at the end. You have to pass a 10 digits number or 8 digits and an X."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
